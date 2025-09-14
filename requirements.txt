@@ -1,3 +1,8 @@
-Django>=4.2,<4.3
-djangorestframework>=3.14,<3.15
-schedule>=1.2.0
+asgiref==3.9.1
+Django==5.2.6
+django-cors-headers==4.8.0
+djangorestframework==3.16.1
+pytz==2025.2
+schedule==1.2.2
+sqlparse==0.5.3
+typing_extensions==4.15.0
