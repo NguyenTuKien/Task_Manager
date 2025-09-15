@@ -109,7 +109,7 @@ def logout_view(request):
     return JsonResponse({'detail': 'Logout endpoint', 'authenticated': request.user.is_authenticated})
 # ===== Tasks =====
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+
 def tasks_list_create(request):
     if request.method == 'GET':
         # Only show tasks the current user owns (hide tasks where user is only an assignee)
@@ -142,7 +142,8 @@ def tasks_list_create(request):
 
 
 @api_view(['GET', 'PATCH', 'DELETE'])
-@permission_classes([IsAuthenticated])
+
+
 def task_detail_update_delete(request, pk):
     task = get_object_or_404(Task.objects.select_related('owner'), pk=pk)
 
@@ -165,7 +166,6 @@ def task_detail_update_delete(request, pk):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def task_send_notification(request, pk):
     task = get_object_or_404(Task, pk=pk)
     if task.owner and task.owner != request.user:
@@ -180,7 +180,6 @@ def task_send_notification(request, pk):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def task_check(request, pk):
     task = get_object_or_404(Task, pk=pk)
     TaskService(task).refresh_status()
@@ -188,7 +187,6 @@ def task_check(request, pk):
 
 # ===== Assignments =====
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
 def assignments_list_create(request):
     if request.method == 'GET':
         # Only show assignments where current user is the assignee (hide those merely owned/assigned by user)
@@ -204,7 +202,6 @@ def assignments_list_create(request):
 
 
 @api_view(['GET', 'PATCH', 'DELETE'])
-@permission_classes([IsAuthenticated])
 def assignment_detail_update_delete(request, pk):
     assignment = get_object_or_404(
         Assignment.objects.select_related('task', 'user', 'assigned_by'), pk=pk
@@ -226,7 +223,6 @@ def assignment_detail_update_delete(request, pk):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def assignment_complete(request, pk):
     assignment = get_object_or_404(Assignment, pk=pk)
     if assignment.user != request.user:
@@ -236,7 +232,6 @@ def assignment_complete(request, pk):
 
 # ===== Events =====
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
 def events_list_create(request):
     if request.method == 'GET':
         # Only show events the user hosts (hide events where user is only a guest)
@@ -268,7 +263,6 @@ def events_list_create(request):
 
 
 @api_view(['GET', 'PATCH', 'DELETE'])
-@permission_classes([IsAuthenticated])
 def event_detail_update_delete(request, pk):
     event = get_object_or_404(Event, pk=pk)
 
@@ -291,7 +285,6 @@ def event_detail_update_delete(request, pk):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def event_invite(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.user != event.host:
@@ -301,7 +294,7 @@ def event_invite(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+
 def event_count_guests(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.user != event.host:
@@ -311,7 +304,6 @@ def event_count_guests(request, pk):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def event_send_reminder(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.user != event.host:
@@ -321,7 +313,6 @@ def event_send_reminder(request, pk):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def event_update_status(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.user != event.host:
@@ -331,7 +322,6 @@ def event_update_status(request, pk):
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
 def event_cancel(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.user != event.host:
@@ -346,7 +336,7 @@ def event_cancel(request, pk):
 
 # ===== Invitations =====
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+
 def invitation_accept(request, pk):
     invitation = get_object_or_404(Invitation, pk=pk)
     if request.user != invitation.guest:
@@ -356,7 +346,6 @@ def invitation_accept(request, pk):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def invitation_decline(request, pk):
     invitation = get_object_or_404(Invitation, pk=pk)
     if request.user != invitation.guest:
@@ -366,7 +355,6 @@ def invitation_decline(request, pk):
 
 # ===== Notes =====
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
 def notes_list_create(request):
     if request.method == 'GET':
         qs = Note.objects.filter(owner=request.user)
@@ -381,7 +369,6 @@ def notes_list_create(request):
 
 
 @api_view(['GET', 'PATCH', 'DELETE'])
-@permission_classes([IsAuthenticated])
 def note_detail_update_delete(request, pk):
     note = get_object_or_404(Note, pk=pk)
 
@@ -404,14 +391,13 @@ def note_detail_update_delete(request, pk):
 
 # ===== Notifications (của user hiện tại) =====
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def notifications_list(request):
     qs = Notification.objects.filter(user=request.user).select_related('task')
     serializer = NotificationSerializer(qs, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+
 def invitations_list(request):
     # Only invitations where current user is the guest
     qs = Invitation.objects.filter(guest=request.user).select_related('event', 'guest')
@@ -420,7 +406,6 @@ def invitations_list(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def notification_mark_read(request, pk):
     notif = get_object_or_404(Notification, pk=pk, user=request.user)
     notif.is_read = True
@@ -429,14 +414,13 @@ def notification_mark_read(request, pk):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+
 def notifications_mark_all_read(request):
     updated = NotificationService(request.user).mark_all_read()
     return Response({'detail': f'{updated} notifications marked as read.'})
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def users_list(request):
     """Get list of all users for assignments and invitations"""
     from django.contrib.auth import get_user_model
