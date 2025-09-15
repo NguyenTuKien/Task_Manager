@@ -30,11 +30,10 @@ ALLOWED_HOSTS = ["*", "localhost", "127.0.0.1", "0.0.0.0", "172.18.0.2"]
 
 # Allow frontend dev server origin for POST (different port -> different origin)
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://0.0.0.0:3000',
-    'https://taskmanager-nguyentukien.vercel.app',
-    'https://taskmanager-nguyentukien.onrender.com',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://0.0.0.0:5173',
+    'https://nguyentukien-task-manager.onrender.com',
 ]
 
 
@@ -137,11 +136,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS / CSRF dev config
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://0.0.0.0:3000',
-    'https://taskmanager-nguyentukien.vercel.app',
-    'https://taskmanager-nguyentukien.onrender.com',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://0.0.0.0:5173',
+    'https://nguyentukien-task-manager.onrender.com',
 ]
 CORS_ALLOW_CREDENTIALS = True
 
