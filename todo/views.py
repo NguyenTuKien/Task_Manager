@@ -62,25 +62,37 @@ def signup_view(request):
             return JsonResponse({'authenticated': True, 'username': request.user.username, 'id': request.user.id})
         return JsonResponse({'authenticated': False})
 
+    # Debug logging
+    print(f"Request method: {request.method}")
+    print(f"Content-Type: {request.content_type}")
+    print(f"POST data: {request.POST}")
+    print(f"Body: {request.body}")
+
     data = request.POST
     if request.content_type and 'application/json' in request.content_type.lower():
         import json
         try:
             data = json.loads(request.body.decode('utf-8') or '{}')
-        except Exception:
+            print(f"Parsed JSON data: {data}")
+        except Exception as e:
+            print(f"JSON parsing error: {e}")
             data = {}
 
     form = SignupForm(data if hasattr(data, 'get') else data)
+    print(f"Form is valid: {form.is_valid()}")
+    print(f"Form errors: {form.errors}")
+    
     if form.is_valid():
         user = form.save()
         # auto login
         authed = authenticate(request, username=user.username, password=form.cleaned_data['password1'])
         if authed is not None:
             login(request, authed)
-    return JsonResponse({'success': True, 'username': user.username, 'id': user.id})
+        return JsonResponse({'success': True, 'username': user.username, 'id': user.id})
 
     # serialize errors
     errors = {field: [str(e) for e in errs] for field, errs in form.errors.items()}
+    print(f"Serialized errors: {errors}")
     return JsonResponse({'success': False, 'errors': errors}, status=400)
 
 @api_view(['GET'])
@@ -109,7 +121,6 @@ def logout_view(request):
     return JsonResponse({'detail': 'Logout endpoint', 'authenticated': request.user.is_authenticated})
 # ===== Tasks =====
 @api_view(['GET', 'POST'])
-
 def tasks_list_create(request):
     if request.method == 'GET':
         # Only show tasks the current user owns (hide tasks where user is only an assignee)
@@ -142,8 +153,6 @@ def tasks_list_create(request):
 
 
 @api_view(['GET', 'PATCH', 'DELETE'])
-
-
 def task_detail_update_delete(request, pk):
     task = get_object_or_404(Task.objects.select_related('owner'), pk=pk)
 
@@ -294,7 +303,6 @@ def event_invite(request, pk):
 
 
 @api_view(['GET'])
-
 def event_count_guests(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.user != event.host:
@@ -336,7 +344,6 @@ def event_cancel(request, pk):
 
 # ===== Invitations =====
 @api_view(['POST'])
-
 def invitation_accept(request, pk):
     invitation = get_object_or_404(Invitation, pk=pk)
     if request.user != invitation.guest:
@@ -397,7 +404,6 @@ def notifications_list(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-
 def invitations_list(request):
     # Only invitations where current user is the guest
     qs = Invitation.objects.filter(guest=request.user).select_related('event', 'guest')
@@ -414,7 +420,6 @@ def notification_mark_read(request, pk):
 
 
 @api_view(['POST'])
-
 def notifications_mark_all_read(request):
     updated = NotificationService(request.user).mark_all_read()
     return Response({'detail': f'{updated} notifications marked as read.'})
